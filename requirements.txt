@@ -3,6 +3,6 @@
 
 # Para manejo de estructuras de datos numéricas (alternativa: implementación propia)
 # numpy==1.21.0
-
+ 
 # Solo dependencias estándar de Python por ahora
 # El proyecto implementará las estructuras desde cero según lineamientos 

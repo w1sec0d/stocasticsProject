@@ -104,20 +104,26 @@ class VariableEliminationInference:
         query_node = self.network.get_node(query_var)
         distribution = {}
         
-        for value in query_node.domain:
-            if query_var in final_factor.variables:
-                assignment = {query_var: value}
-                # Añadir valores de evidencia que puedan estar en el factor final
-                for var in final_factor.variables:
-                    if var in evidence and var != query_var:
-                        assignment[var] = evidence[var]
-                        
-                probability = final_factor.get_value(assignment)
-                distribution[value] = probability
-            else:
-                # Si la variable de consulta no está en el factor final,
-                # significa que es independiente de la evidencia
-                distribution[value] = 1.0 / len(query_node.domain)
+        # Manejar factor dummy especial
+        if '__dummy__' in final_factor.variables:
+            # Factor dummy significa que la consulta es independiente de la evidencia
+            uniform_prob = 1.0 / len(query_node.domain)
+            distribution = {value: uniform_prob for value in query_node.domain}
+        else:
+            for value in query_node.domain:
+                if query_var in final_factor.variables:
+                    assignment = {query_var: value}
+                    # Añadir valores de evidencia que puedan estar en el factor final
+                    for var in final_factor.variables:
+                        if var in evidence and var != query_var:
+                            assignment[var] = evidence[var]
+                            
+                    probability = final_factor.get_value(assignment)
+                    distribution[value] = probability
+                else:
+                    # Si la variable de consulta no está en el factor final,
+                    # significa que es independiente de la evidencia
+                    distribution[value] = 1.0 / len(query_node.domain)
                 
         # Paso 6: Normalizar
         total = sum(distribution.values())
