@@ -1,0 +1,88 @@
+{
+  "name": "Red de Diagnóstico Médico Simple",
+  "description": "Red bayesiana para diagnóstico médico con síntomas y pruebas",
+  "nodes": [
+    {
+      "name": "Disease",
+      "domain": [true, false],
+      "description": "Presencia de la enfermedad",
+      "cpt": [
+        {
+          "parent_values": {},
+          "probabilities": {
+            "true": 0.1,
+            "false": 0.9
+          }
+        }
+      ]
+    },
+    {
+      "name": "Symptom1",
+      "domain": [true, false],
+      "description": "Síntoma 1 - Fiebre",
+      "cpt": [
+        {
+          "parent_values": { "Disease": true },
+          "probabilities": {
+            "true": 0.8,
+            "false": 0.2
+          }
+        },
+        {
+          "parent_values": { "Disease": false },
+          "probabilities": {
+            "true": 0.1,
+            "false": 0.9
+          }
+        }
+      ]
+    },
+    {
+      "name": "Symptom2",
+      "domain": [true, false],
+      "description": "Síntoma 2 - Dolor de cabeza",
+      "cpt": [
+        {
+          "parent_values": { "Disease": true },
+          "probabilities": {
+            "true": 0.7,
+            "false": 0.3
+          }
+        },
+        {
+          "parent_values": { "Disease": false },
+          "probabilities": {
+            "true": 0.05,
+            "false": 0.95
+          }
+        }
+      ]
+    },
+    {
+      "name": "TestResult",
+      "domain": [true, false],
+      "description": "Resultado de prueba médica",
+      "cpt": [
+        {
+          "parent_values": { "Disease": true },
+          "probabilities": {
+            "true": 0.9,
+            "false": 0.1
+          }
+        },
+        {
+          "parent_values": { "Disease": false },
+          "probabilities": {
+            "true": 0.05,
+            "false": 0.95
+          }
+        }
+      ]
+    }
+  ],
+  "edges": [
+    { "parent": "Disease", "child": "Symptom1" },
+    { "parent": "Disease", "child": "Symptom2" },
+    { "parent": "Disease", "child": "TestResult" }
+  ]
+}

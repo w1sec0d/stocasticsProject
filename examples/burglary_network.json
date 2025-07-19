@@ -1,0 +1,117 @@
+{
+  "name": "Red de Robo - Russell & Norvig",
+  "description": "Red bayesiana clásica del ejemplo del libro Artificial Intelligence: A Modern Approach",
+  "nodes": [
+    {
+      "name": "Burglary",
+      "domain": [true, false],
+      "description": "Ocurrencia de un robo en casa",
+      "cpt": [
+        {
+          "parent_values": {},
+          "probabilities": {
+            "true": 0.001,
+            "false": 0.999
+          }
+        }
+      ]
+    },
+    {
+      "name": "Earthquake",
+      "domain": [true, false],
+      "description": "Ocurrencia de un terremoto",
+      "cpt": [
+        {
+          "parent_values": {},
+          "probabilities": {
+            "true": 0.002,
+            "false": 0.998
+          }
+        }
+      ]
+    },
+    {
+      "name": "Alarm",
+      "domain": [true, false],
+      "description": "La alarma está sonando",
+      "cpt": [
+        {
+          "parent_values": { "Burglary": true, "Earthquake": true },
+          "probabilities": {
+            "true": 0.95,
+            "false": 0.05
+          }
+        },
+        {
+          "parent_values": { "Burglary": true, "Earthquake": false },
+          "probabilities": {
+            "true": 0.94,
+            "false": 0.06
+          }
+        },
+        {
+          "parent_values": { "Burglary": false, "Earthquake": true },
+          "probabilities": {
+            "true": 0.29,
+            "false": 0.71
+          }
+        },
+        {
+          "parent_values": { "Burglary": false, "Earthquake": false },
+          "probabilities": {
+            "true": 0.001,
+            "false": 0.999
+          }
+        }
+      ]
+    },
+    {
+      "name": "JohnCalls",
+      "domain": [true, false],
+      "description": "John llama reportando la alarma",
+      "cpt": [
+        {
+          "parent_values": { "Alarm": true },
+          "probabilities": {
+            "true": 0.9,
+            "false": 0.1
+          }
+        },
+        {
+          "parent_values": { "Alarm": false },
+          "probabilities": {
+            "true": 0.05,
+            "false": 0.95
+          }
+        }
+      ]
+    },
+    {
+      "name": "MaryCalls",
+      "domain": [true, false],
+      "description": "Mary llama reportando la alarma",
+      "cpt": [
+        {
+          "parent_values": { "Alarm": true },
+          "probabilities": {
+            "true": 0.7,
+            "false": 0.3
+          }
+        },
+        {
+          "parent_values": { "Alarm": false },
+          "probabilities": {
+            "true": 0.01,
+            "false": 0.99
+          }
+        }
+      ]
+    }
+  ],
+  "edges": [
+    { "parent": "Burglary", "child": "Alarm" },
+    { "parent": "Earthquake", "child": "Alarm" },
+    { "parent": "Alarm", "child": "JohnCalls" },
+    { "parent": "Alarm", "child": "MaryCalls" }
+  ]
+}
