@@ -7,7 +7,7 @@
 **Profesor**: Jorge Eduardo Ortiz Triviño  
 **Capítulo Base**: Capítulo 13 "Probabilistic Reasoning" - Russell & Norvig
 
-## Resumen Ejecutivo
+## Resume
 
 Se ha desarrollado exitosamente un **Motor de Inferencia Bayesiano** completo que implementa algoritmos de inferencia exacta para Redes Bayesianas. El sistema permite realizar consultas probabilísticas de manera eficiente utilizando dos algoritmos principales del estado del arte.
 
@@ -17,7 +17,6 @@ Se ha desarrollado exitosamente un **Motor de Inferencia Bayesiano** completo qu
 2. **✅ Estructura de datos eficiente**: Representación completa de Redes Bayesianas con CPTs
 3. **✅ Interfaz de usuario**: CLI intuitiva con modo interactivo y línea de comandos
 4. **✅ Casos de prueba**: Validación completa con redes de ejemplo
-5. **✅ Documentación**: Manuales técnico y de usuario completos
 
 ## Funcionalidades Principales
 
