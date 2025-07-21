@@ -1,0 +1,454 @@
+{
+  "name": "Red de Sistema de Seguridad Inteligente",
+  "description": "Red bayesiana compleja para sistema de seguridad con múltiples sensores, niveles de amenaza y decisiones",
+  "nodes": [
+    {
+      "name": "WeatherCondition",
+      "domain": ["clear", "rain", "storm"],
+      "description": "Condiciones meteorológicas",
+      "cpt": [
+        {
+          "parent_values": {},
+          "probabilities": {
+            "clear": 0.6,
+            "rain": 0.3,
+            "storm": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "name": "TimeOfDay",
+      "domain": ["day", "night"],
+      "description": "Período del día",
+      "cpt": [
+        {
+          "parent_values": {},
+          "probabilities": {
+            "day": 0.5,
+            "night": 0.5
+          }
+        }
+      ]
+    },
+    {
+      "name": "IntruderPresence",
+      "domain": [true, false],
+      "description": "Presencia real de intruso",
+      "cpt": [
+        {
+          "parent_values": { "TimeOfDay": "night" },
+          "probabilities": {
+            "true": 0.05,
+            "false": 0.95
+          }
+        },
+        {
+          "parent_values": { "TimeOfDay": "day" },
+          "probabilities": {
+            "true": 0.01,
+            "false": 0.99
+          }
+        }
+      ]
+    },
+    {
+      "name": "MotionSensor",
+      "domain": [true, false],
+      "description": "Detector de movimiento activado",
+      "cpt": [
+        {
+          "parent_values": {
+            "IntruderPresence": true,
+            "WeatherCondition": "clear"
+          },
+          "probabilities": {
+            "true": 0.95,
+            "false": 0.05
+          }
+        },
+        {
+          "parent_values": {
+            "IntruderPresence": true,
+            "WeatherCondition": "rain"
+          },
+          "probabilities": {
+            "true": 0.9,
+            "false": 0.1
+          }
+        },
+        {
+          "parent_values": {
+            "IntruderPresence": true,
+            "WeatherCondition": "storm"
+          },
+          "probabilities": {
+            "true": 0.7,
+            "false": 0.3
+          }
+        },
+        {
+          "parent_values": {
+            "IntruderPresence": false,
+            "WeatherCondition": "clear"
+          },
+          "probabilities": {
+            "true": 0.02,
+            "false": 0.98
+          }
+        },
+        {
+          "parent_values": {
+            "IntruderPresence": false,
+            "WeatherCondition": "rain"
+          },
+          "probabilities": {
+            "true": 0.05,
+            "false": 0.95
+          }
+        },
+        {
+          "parent_values": {
+            "IntruderPresence": false,
+            "WeatherCondition": "storm"
+          },
+          "probabilities": {
+            "true": 0.15,
+            "false": 0.85
+          }
+        }
+      ]
+    },
+    {
+      "name": "DoorSensor",
+      "domain": [true, false],
+      "description": "Sensor de apertura de puerta activado",
+      "cpt": [
+        {
+          "parent_values": { "IntruderPresence": true },
+          "probabilities": {
+            "true": 0.85,
+            "false": 0.15
+          }
+        },
+        {
+          "parent_values": { "IntruderPresence": false },
+          "probabilities": {
+            "true": 0.01,
+            "false": 0.99
+          }
+        }
+      ]
+    },
+    {
+      "name": "WindowSensor",
+      "domain": [true, false],
+      "description": "Sensor de ventana activado",
+      "cpt": [
+        {
+          "parent_values": {
+            "IntruderPresence": true,
+            "WeatherCondition": "storm"
+          },
+          "probabilities": {
+            "true": 0.6,
+            "false": 0.4
+          }
+        },
+        {
+          "parent_values": {
+            "IntruderPresence": true,
+            "WeatherCondition": "rain"
+          },
+          "probabilities": {
+            "true": 0.75,
+            "false": 0.25
+          }
+        },
+        {
+          "parent_values": {
+            "IntruderPresence": true,
+            "WeatherCondition": "clear"
+          },
+          "probabilities": {
+            "true": 0.8,
+            "false": 0.2
+          }
+        },
+        {
+          "parent_values": {
+            "IntruderPresence": false,
+            "WeatherCondition": "storm"
+          },
+          "probabilities": {
+            "true": 0.1,
+            "false": 0.9
+          }
+        },
+        {
+          "parent_values": {
+            "IntruderPresence": false,
+            "WeatherCondition": "rain"
+          },
+          "probabilities": {
+            "true": 0.03,
+            "false": 0.97
+          }
+        },
+        {
+          "parent_values": {
+            "IntruderPresence": false,
+            "WeatherCondition": "clear"
+          },
+          "probabilities": {
+            "true": 0.01,
+            "false": 0.99
+          }
+        }
+      ]
+    },
+    {
+      "name": "SoundSensor",
+      "domain": [true, false],
+      "description": "Sensor de sonido activado",
+      "cpt": [
+        {
+          "parent_values": { "IntruderPresence": true, "TimeOfDay": "night" },
+          "probabilities": {
+            "true": 0.7,
+            "false": 0.3
+          }
+        },
+        {
+          "parent_values": { "IntruderPresence": true, "TimeOfDay": "day" },
+          "probabilities": {
+            "true": 0.6,
+            "false": 0.4
+          }
+        },
+        {
+          "parent_values": { "IntruderPresence": false, "TimeOfDay": "night" },
+          "probabilities": {
+            "true": 0.05,
+            "false": 0.95
+          }
+        },
+        {
+          "parent_values": { "IntruderPresence": false, "TimeOfDay": "day" },
+          "probabilities": {
+            "true": 0.15,
+            "false": 0.85
+          }
+        }
+      ]
+    },
+    {
+      "name": "ThreatLevel",
+      "domain": ["low", "medium", "high"],
+      "description": "Nivel de amenaza calculado",
+      "cpt": [
+        {
+          "parent_values": {
+            "MotionSensor": true,
+            "DoorSensor": true,
+            "WindowSensor": true
+          },
+          "probabilities": {
+            "low": 0.05,
+            "medium": 0.25,
+            "high": 0.7
+          }
+        },
+        {
+          "parent_values": {
+            "MotionSensor": true,
+            "DoorSensor": true,
+            "WindowSensor": false
+          },
+          "probabilities": {
+            "low": 0.1,
+            "medium": 0.4,
+            "high": 0.5
+          }
+        },
+        {
+          "parent_values": {
+            "MotionSensor": true,
+            "DoorSensor": false,
+            "WindowSensor": true
+          },
+          "probabilities": {
+            "low": 0.15,
+            "medium": 0.45,
+            "high": 0.4
+          }
+        },
+        {
+          "parent_values": {
+            "MotionSensor": true,
+            "DoorSensor": false,
+            "WindowSensor": false
+          },
+          "probabilities": {
+            "low": 0.3,
+            "medium": 0.5,
+            "high": 0.2
+          }
+        },
+        {
+          "parent_values": {
+            "MotionSensor": false,
+            "DoorSensor": true,
+            "WindowSensor": true
+          },
+          "probabilities": {
+            "low": 0.2,
+            "medium": 0.5,
+            "high": 0.3
+          }
+        },
+        {
+          "parent_values": {
+            "MotionSensor": false,
+            "DoorSensor": true,
+            "WindowSensor": false
+          },
+          "probabilities": {
+            "low": 0.4,
+            "medium": 0.45,
+            "high": 0.15
+          }
+        },
+        {
+          "parent_values": {
+            "MotionSensor": false,
+            "DoorSensor": false,
+            "WindowSensor": true
+          },
+          "probabilities": {
+            "low": 0.5,
+            "medium": 0.4,
+            "high": 0.1
+          }
+        },
+        {
+          "parent_values": {
+            "MotionSensor": false,
+            "DoorSensor": false,
+            "WindowSensor": false
+          },
+          "probabilities": {
+            "low": 0.85,
+            "medium": 0.12,
+            "high": 0.03
+          }
+        }
+      ]
+    },
+    {
+      "name": "AlarmActivation",
+      "domain": [true, false],
+      "description": "Activación de la alarma general",
+      "cpt": [
+        {
+          "parent_values": { "ThreatLevel": "high", "SoundSensor": true },
+          "probabilities": {
+            "true": 0.98,
+            "false": 0.02
+          }
+        },
+        {
+          "parent_values": { "ThreatLevel": "high", "SoundSensor": false },
+          "probabilities": {
+            "true": 0.85,
+            "false": 0.15
+          }
+        },
+        {
+          "parent_values": { "ThreatLevel": "medium", "SoundSensor": true },
+          "probabilities": {
+            "true": 0.7,
+            "false": 0.3
+          }
+        },
+        {
+          "parent_values": { "ThreatLevel": "medium", "SoundSensor": false },
+          "probabilities": {
+            "true": 0.4,
+            "false": 0.6
+          }
+        },
+        {
+          "parent_values": { "ThreatLevel": "low", "SoundSensor": true },
+          "probabilities": {
+            "true": 0.2,
+            "false": 0.8
+          }
+        },
+        {
+          "parent_values": { "ThreatLevel": "low", "SoundSensor": false },
+          "probabilities": {
+            "true": 0.05,
+            "false": 0.95
+          }
+        }
+      ]
+    },
+    {
+      "name": "SecurityResponse",
+      "domain": ["none", "notify", "dispatch"],
+      "description": "Respuesta del sistema de seguridad",
+      "cpt": [
+        {
+          "parent_values": { "AlarmActivation": true, "TimeOfDay": "night" },
+          "probabilities": {
+            "none": 0.05,
+            "notify": 0.25,
+            "dispatch": 0.7
+          }
+        },
+        {
+          "parent_values": { "AlarmActivation": true, "TimeOfDay": "day" },
+          "probabilities": {
+            "none": 0.1,
+            "notify": 0.4,
+            "dispatch": 0.5
+          }
+        },
+        {
+          "parent_values": { "AlarmActivation": false, "TimeOfDay": "night" },
+          "probabilities": {
+            "none": 0.8,
+            "notify": 0.18,
+            "dispatch": 0.02
+          }
+        },
+        {
+          "parent_values": { "AlarmActivation": false, "TimeOfDay": "day" },
+          "probabilities": {
+            "none": 0.9,
+            "notify": 0.09,
+            "dispatch": 0.01
+          }
+        }
+      ]
+    }
+  ],
+  "edges": [
+    { "parent": "TimeOfDay", "child": "IntruderPresence" },
+    { "parent": "WeatherCondition", "child": "MotionSensor" },
+    { "parent": "IntruderPresence", "child": "MotionSensor" },
+    { "parent": "IntruderPresence", "child": "DoorSensor" },
+    { "parent": "IntruderPresence", "child": "WindowSensor" },
+    { "parent": "WeatherCondition", "child": "WindowSensor" },
+    { "parent": "IntruderPresence", "child": "SoundSensor" },
+    { "parent": "TimeOfDay", "child": "SoundSensor" },
+    { "parent": "MotionSensor", "child": "ThreatLevel" },
+    { "parent": "DoorSensor", "child": "ThreatLevel" },
+    { "parent": "WindowSensor", "child": "ThreatLevel" },
+    { "parent": "ThreatLevel", "child": "AlarmActivation" },
+    { "parent": "SoundSensor", "child": "AlarmActivation" },
+    { "parent": "AlarmActivation", "child": "SecurityResponse" },
+    { "parent": "TimeOfDay", "child": "SecurityResponse" }
+  ]
+}

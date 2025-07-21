@@ -1,8 +1,0 @@
-# Dependencias mínimas para el Motor de Inferencia Bayesiano
-# Solo librerías estándar de Python y una librería de estructuras de datos
-
-# Para manejo de estructuras de datos numéricas (alternativa: implementación propia)
-# numpy==1.21.0
- 
-# Solo dependencias estándar de Python por ahora
-# El proyecto implementará las estructuras desde cero según lineamientos 

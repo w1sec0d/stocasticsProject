@@ -3,6 +3,7 @@ Utilidades para benchmark y evaluación de rendimiento.
 """
 
 import time
+import os
 from typing import Dict, List, Any
 from ..core.bayesian_network import BayesianNetwork
 from ..algorithms.enumeration import EnumerationInference
@@ -34,6 +35,9 @@ class BenchmarkRunner:
         
         print("\n📊 Benchmark Red Médica")
         self._benchmark_medical_network()
+        
+        print("\n📊 Benchmark Red de Sistema de Seguridad (Compleja)")
+        self._benchmark_security_network()
         
         print("\n📊 Benchmark Consultas Marginales")
         self._benchmark_marginal_queries()
@@ -164,12 +168,142 @@ class BenchmarkRunner:
             'speedup': speedup
         })
         
+    def _benchmark_security_network(self):
+        """Benchmark específico para la red de sistema de seguridad."""
+        try:
+            # Cargar red desde archivo JSON
+            network = self._load_security_network()
+            if network is None:
+                print("  ⚠️ No se pudo cargar la red de seguridad, saltando...")
+                return
+        except Exception as e:
+            print(f"  ❌ Error cargando red de seguridad: {e}")
+            return
+        
+        # Crear motores
+        enum_engine = EnumerationInference(network, verbose=False)
+        elim_engine = VariableEliminationInference(network, verbose=False)
+        
+        # Casos de prueba complejos para sistema de seguridad
+        test_cases = [
+            # Consultas básicas sin evidencia
+            {"query": "IntruderPresence", "evidence": {}},
+            {"query": "ThreatLevel", "evidence": {}},
+            {"query": "AlarmActivation", "evidence": {}},
+            
+            # Consultas con evidencia de sensores individuales
+            {"query": "IntruderPresence", "evidence": {"MotionSensor": True}},
+            {"query": "IntruderPresence", "evidence": {"DoorSensor": True}},
+            {"query": "IntruderPresence", "evidence": {"WindowSensor": True}},
+            {"query": "IntruderPresence", "evidence": {"SoundSensor": True}},
+            
+            # Consultas con múltiples sensores activados
+            {"query": "IntruderPresence", "evidence": {"MotionSensor": True, "DoorSensor": True}},
+            {"query": "IntruderPresence", "evidence": {"MotionSensor": True, "WindowSensor": True}},
+            {"query": "ThreatLevel", "evidence": {"MotionSensor": True, "DoorSensor": True, "WindowSensor": True}},
+            
+            # Consultas condicionadas por contexto
+            {"query": "ThreatLevel", "evidence": {"TimeOfDay": "night", "WeatherCondition": "storm"}},
+            {"query": "AlarmActivation", "evidence": {"TimeOfDay": "night", "SoundSensor": True}},
+            {"query": "SecurityResponse", "evidence": {"AlarmActivation": True, "TimeOfDay": "night"}},
+            
+            # Consultas complejas con múltiple evidencia
+            {"query": "IntruderPresence", "evidence": {
+                "MotionSensor": True, "DoorSensor": True, "SoundSensor": True, "TimeOfDay": "night"
+            }},
+            {"query": "SecurityResponse", "evidence": {
+                "MotionSensor": True, "DoorSensor": True, "WeatherCondition": "clear", "TimeOfDay": "night"
+            }},
+            
+            # Consultas de diagnóstico inverso
+            {"query": "WeatherCondition", "evidence": {"MotionSensor": False, "WindowSensor": True}},
+            {"query": "TimeOfDay", "evidence": {"SecurityResponse": "dispatch"}},
+        ]
+        
+        print(f"Ejecutando {len(test_cases)} consultas de seguridad...")
+        
+        total_enum_time = 0
+        total_elim_time = 0
+        
+        for i, case in enumerate(test_cases, 1):
+            query = case["query"]
+            evidence = case["evidence"]
+            
+            print(f"  {i:2d}. P({query} | {evidence})")
+            
+            # Ejecutar ambos algoritmos
+            start_time = time.time()
+            enum_result = enum_engine.query(query, evidence)
+            enum_time = time.time() - start_time
+            
+            start_time = time.time()
+            elim_result = elim_engine.query(query, evidence)
+            elim_time = time.time() - start_time
+            
+            total_enum_time += enum_time
+            total_elim_time += elim_time
+            
+            # Verificar consistencia
+            consistent = self._check_consistency(enum_result, elim_result)
+            status = "✅" if consistent else "❌"
+            
+            print(f"      Enum: {enum_time:.4f}s | Elim: {elim_time:.4f}s | {status}")
+            
+        speedup = total_enum_time / total_elim_time if total_elim_time > 0 else 0
+        print(f"\n  Tiempo total:")
+        print(f"    Enumeración: {total_enum_time:.4f}s")
+        print(f"    Eliminación: {total_elim_time:.4f}s")
+        print(f"    Aceleración: {speedup:.2f}x")
+        
+        # Mostrar información adicional sobre la red
+        variables = network.get_variables()
+        print(f"    Variables en la red: {len(variables)}")
+        print(f"    Complejidad esperada: Exponencial en {len(variables)} variables")
+        
+        self.results.append({
+            'network': 'Security',
+            'queries': len(test_cases),
+            'enum_total': total_enum_time,
+            'elim_total': total_elim_time,
+            'speedup': speedup
+        })
+        
+    def _load_security_network(self) -> BayesianNetwork:
+        """
+        Carga la red de sistema de seguridad desde el archivo JSON.
+        
+        Returns:
+            Red Bayesiana del sistema de seguridad, o None si no se puede cargar
+        """
+        # Buscar el archivo en diferentes ubicaciones posibles
+        possible_paths = [
+            "examples/security_system_network.json",
+            "../../examples/security_system_network.json",
+            os.path.join(os.path.dirname(__file__), "../../examples/security_system_network.json"),
+        ]
+        
+        for path in possible_paths:
+            if os.path.exists(path):
+                try:
+                    return self.parser.load_from_json(path)
+                except Exception as e:
+                    print(f"  ⚠️ Error cargando desde {path}: {e}")
+                    continue
+                    
+        print("  ⚠️ No se encontró security_system_network.json en las ubicaciones esperadas")
+        return None
+        
     def _benchmark_marginal_queries(self):
         """Benchmark de consultas marginales (sin evidencia)."""
         networks = [
             ("Burglary", self.parser.create_example_burglary_network()),
             ("Medical", self.parser.create_simple_medical_network())
         ]
+        
+        # Añadir red de seguridad si está disponible
+        security_network = self._load_security_network()
+        if security_network is not None:
+            networks.append(("Security", security_network))
         
         print("Comparando consultas marginales (sin evidencia)...")
         

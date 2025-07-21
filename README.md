@@ -83,7 +83,6 @@ python3.8+
 ```bash
 git clone [repo-url]
 cd stocasticsProject
-python -m pip install -r requirements.txt
 ```
 
 ### Uso Básico
